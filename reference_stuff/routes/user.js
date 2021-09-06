@@ -9,3 +9,4 @@ router.get('/test/access', (req,res)=>{
     res.send({message})
 })
 
+module.exports = router;

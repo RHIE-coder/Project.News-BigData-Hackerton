@@ -23,7 +23,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 // Parsing
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cookieParser())
+app.use(cookieParser());
 
 /* 
 var expiryDate = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
@@ -48,7 +48,7 @@ app.use(server_session({
 
   
 // Helmet
-app.use(helmet())
+app.use(helmet());
 
 // Passport
 const passport = require('passport');
@@ -72,7 +72,7 @@ app.use("/",(req,res)=>{
 })
 
 // favicon
-app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+// app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
 // Database
 database.init(app, serverConfig);
@@ -80,7 +80,6 @@ database.init(app, serverConfig);
 /************************************************/
 app.use('/', require('./routes/views'));
 app.use('/', require('./routes/main')(passport));
-app.use('/coupang', require('./routes/coupang'));
 app.use('/me', require('./routes/user'));
 /************************************************/
 /*************************Utils Methods SaveZone*************************/

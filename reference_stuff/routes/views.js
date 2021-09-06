@@ -24,9 +24,4 @@ router.get('/profile',not_logined_redirect_login, (req,res)=>{
     res.render('profile.html')
 })
 
-//에디터 화면
-router.get('/onesite', not_logined_redirect_login, (req, res) => {
-    res.render('onesite.html')
-})
-
 module.exports = router

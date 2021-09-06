@@ -17,6 +17,7 @@ function loadSchema(mongoose) {
     const schemadir = path.join(__dirname, "./schema")
     const modellist = {}
     const filelist = fs.readdirSync(schemadir)
+
     filelist.forEach(file => {
         const filename = path.basename(file, path.extname(file));
         schema_info = require(`./schema/${filename}`);
