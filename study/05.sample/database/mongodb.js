@@ -1,70 +1,32 @@
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto')
 
-mongoose.connect('mongodb://localhost:27017/local',{
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+function init(app, config){
+    mongoose.connect(`${config.db_url}/${config.db_name}`,{
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
 
-const Member = require('./schema/member')
-const BucketList = require('./schema/BucketList')
-const Abc = require('./schema/abc')
-const Xyz = require('./schema/xyz')
-const Asdf = require('./schema/asdf')
-const Qwer = require('./schema/qwer')
+    const modellist = loadSchema(mongoose);
 
-app.set('Member', Member)
-app.set('BucketList', BucketList)
-app.set('Abc', Abc)
-app.set('Xyz', Xyz)
-app.set('Asdf', Asdf)
-app.set('Qwer', Qwer)
-
-const member = {
-    username : {type : String, unique : true},
-    hashed_password : String,
-    name : String,
-    salt : String,
-    reg_date : { type : Date, default : Date.now }
+    app.set('db_model_list', modellist)
 }
 
-const member_schema = mongoose.Schema(member);
+function loadSchema(mongoose){
+    const schemadir = path.join(__dirname, "schema");
+    const modellist = {};
+    const filelist = fs.readdirSync(schemadir);
+    filelist.forEach(file => {
+        const filename = path.basename(filelist[0], path.extname(filelist[0]));
+        const schema_info = require(`./schema/${filename}`);
+        const schema = mongoose.Schema(schema_info.schema);
+        if(schema_info.method) schema_info.method.forEach(m=>schema.method(m.name, m))
+        if(schema_info.static) schema_info.static.forEach(s=>schema.static(s.name, s))
+        modellist[schema_info.name] = mongoose.model(schema_info.name, schema)
+    })
+    
+    return modellist;
+}
 
-member_schema.method('makeSalt', function(){
-    this.salt = Math.round((new Date().valueOf() * Math.random())) + '';
-})
-
-member_schema.method('encryptPasswordString',function(plainText){
-    return crypto.createHmac('sha256', this.salt).update(plainText).digest('hex');
-})
-
-member_schema.method('makeEncryptedPassword', function(plainText){
-    this.makeSalt();
-    this.hashed_password = this.encryptPasswordString(plainText);
-})
-
-member_schema.method('authenticate', function(plainText){
-    return this.hashed_password === this.encryptPasswordString(plainText);
-})
-
-const Member = mongoose.model('member', member_schema);
-
-// const from_client_password = "1234"
-
-// Member.findOne({username : 'abasb'}, (err, user)=>{
-//     if(err) {console.log(err)}
-//     console.log(user.authenticate(from_client_password))
-// })
-
-
-const new_user = new Member({
-    username : 'yyyy',
-    name : "yesman",
-})
-
-new_user.makeEncryptedPassword('1234');
-
-new_user.save(err => console.log(err))
-
+module.exports.init = init
