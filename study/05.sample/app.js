@@ -44,6 +44,7 @@ database.init(app, serverConfig)
  3. 세션 및 쿠키 설정 및 결정
  4. passport 
  5. 동적 Router importing
+ 6. multipart
 */
 
 app.use(require('./routes/views'))
