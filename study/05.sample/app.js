@@ -3,7 +3,7 @@ const app = express();
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const server_session = require('express-session');
-const { serverConfig } = require("./config/configurations");
+const { serverConfig, uploadConfig } = require("./config/configurations");
 const database = require("./database/mongodb");
 
 // View Setting
@@ -46,19 +46,13 @@ immigration.init(passport);
 app.set('passport', passport);
 
 // Database
-database.init(app, serverConfig)
-/* 
-X1. Database 연동
-X2. 동적으로 DB 스키마 생성
-X3. 세션 및 쿠키 설정 및 결정
-X4. passport 
- 5. 동적 Router importing
- 6. multipart
-*/
+database.init(app, serverConfig);
 
-app.use(require('./routes/views'));
-app.use(require('./routes/main')(passport));
+// Multipart
+const multer = require('multer');
+app.set('upload', multer(uploadConfig))
 
+require('./routes/route_loader').init(app);
 
 app.listen(serverConfig.port, ()=>{
     console.log(`app listening at http://localhost:${serverConfig.port}`)
